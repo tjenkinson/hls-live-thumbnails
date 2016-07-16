@@ -25,7 +25,7 @@ These are the options:
 - **width**: The default width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
 - **height**: The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
 
-E.g. `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width: 300`
+E.g. `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width 300`
 
 #### API
 ##### POST /v1/start
