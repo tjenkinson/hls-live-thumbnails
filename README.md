@@ -17,7 +17,7 @@ These are the options:
 - **port**: The port to listen on. Defaults to 8080.
 - **outputDir**: The directory to place the thumbnails and manifest file.
 - **tempDir**: A directory to use for temporary files. (Optional)
-- **secret"": A string which must be provided in a "x-secret" header for each request.
+- **secret**: A string which must be provided in a "x-secret" header for each request.
 - **expireTime**: The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
 - **interval**: The default interval between thumbnails. If omitted the interval will be calculated automatically using `targetThumbnailCount`.
 - **initialThumbnailCount**: The default number of thumbnails to generate initially, from the end of the stream. If ommitted defaults to taking thumbnails for the entire stream.
