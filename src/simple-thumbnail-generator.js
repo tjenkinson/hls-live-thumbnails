@@ -36,7 +36,7 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 		offset: null,
 		// the times when the corresponding fragments were removed
 		times: []
-	}
+	};
 	// {sn, thumbnails, removalTime}
 	// thumbnails is array of {time, name}
 	this._segments = [];
@@ -261,7 +261,7 @@ SimpleThumbnailGenerator.prototype._emit = function() {
 SimpleThumbnailGenerator.prototype._getSnThumbnails = function(sn, create) {
 	var segment = this._segments.find((segment) => {
 		return segment.sn === sn;
-	})
+	});
 	if (segment) {
 		return segment.thumbnails;
 	}

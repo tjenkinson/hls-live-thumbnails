@@ -220,7 +220,7 @@ ThumbnailGeneratorService.prototype._updateManifest = function(id, generator) {
 			this._logger.error("Error writing manifest file.");
 		}
 	});
-}
+};
 
 ThumbnailGeneratorService.prototype._generateManifestFileName = function(id) {
 	return path.join(this._outputDir, "thumbnails-"+id+".json");

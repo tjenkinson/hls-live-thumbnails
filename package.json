@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "bin": "src/cli.js",
   "scripts": {
-    "generateDocs": "./node_modules/.bin/jsdoc -r -d ./docs ./src"
+    "generateDocs": "./node_modules/.bin/jsdoc -r -d ./docs ./src",
+    "lint": "./node_modules/.bin/jshint src/"
   },
   "keywords": [
     "hls",
@@ -29,6 +30,7 @@
     "request": "^2.73.0"
   },
   "devDependencies": {
-    "jsdoc": "^3.4.0"
+    "jsdoc": "^3.4.0",
+    "jshint": "^2.9.2"
   }
 }

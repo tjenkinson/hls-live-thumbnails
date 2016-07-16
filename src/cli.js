@@ -25,7 +25,7 @@ var optionDefinitions = [
 var options = commandLineArgs(optionDefinitions);
 
 if (options.port % 1 !== 0) {
-	throw new Error("Port invalid.")
+	throw new Error("Port invalid.");
 }
 
 var port = options.port;

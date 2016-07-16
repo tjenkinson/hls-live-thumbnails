@@ -53,7 +53,7 @@ function ThumbnailGenerator(options) {
 		throw new Error("tempDir must be provided.");
 	}
 	if (opts.targetThumbnailCount && opts.interval) {
-		throw new Error("You cannot use targetThumbnailCount and interval options together.")
+		throw new Error("You cannot use targetThumbnailCount and interval options together.");
 	}
 
 	this._playlistUrl = opts.playlistUrl;
@@ -115,7 +115,7 @@ ThumbnailGenerator.prototype.getEmitter = function() {
  */
 ThumbnailGenerator.prototype.getPlaylist = function() {
 	return this._parsedPlaylist;
-}
+};
 
 /**
  * Destroy the generator.
@@ -170,7 +170,7 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 		var firstSN = properties.mediaSequence || 0;
 		this._segmentTargetDuration = properties.targetDuration;
 		this._playlistEnded = !!properties.foundEndlist;
-		var lastLocationSN = this._lastLocation ? this._lastLocation.sn : null
+		var lastLocationSN = this._lastLocation ? this._lastLocation.sn : null;
 		var duration = this._calculateSegmentStartTime(segments, segments.length);
 
 		if (this._targetThumbnailCount) {
@@ -284,7 +284,7 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 		}
 		this._logger.debug("Finished grabbing thumbnails.");
 		this._grabThumbnailsTimer = setTimeout(() => {
-			this._grabThumbnails()
+			this._grabThumbnails();
 		}, interval);
 	});
 };
@@ -398,7 +398,7 @@ ThumbnailGenerator.prototype._getSegmentInfoAtTime = function(segments, segmentC
 			segmentInfo = {
 				index: i,
 				startTime: startTime
-			}
+			};
 			return true;
 		}
 	});
@@ -568,7 +568,7 @@ ThumbnailGenerator.prototype._getUrlBuffer = function(url, dest) {
 ThumbnailGenerator.prototype._BadStatusCodeException = function(statusCode) {
 	Error.captureStackTrace(this, this.constructor);
 	this.name = "BadStatusCode";
-	this.message = "Bad status code: "+statusCode
+	this.message = "Bad status code: "+statusCode;
 	this.extra = statusCode;
 };
 util.inherits(ThumbnailGenerator.prototype._BadStatusCodeException, Error);
