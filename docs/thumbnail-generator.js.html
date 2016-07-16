@@ -1,4 +1,32 @@
-var request = require("request");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: thumbnail-generator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: thumbnail-generator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var request = require("request");
 var url = require("url");
 var util = require("util");
 var crypto = require("crypto");
@@ -52,7 +80,7 @@ function ThumbnailGenerator(options) {
 	if (!opts.tempDir) {
 		throw new Error("tempDir must be provided.");
 	}
-	if (opts.targetThumbnailCount && opts.interval) {
+	if (opts.targetThumbnailCount &amp;&amp; opts.interval) {
 		throw new Error("You cannot use targetThumbnailCount and interval options together.")
 	}
 
@@ -133,7 +161,7 @@ ThumbnailGenerator.prototype.destroy = function() {
 };
 
 ThumbnailGenerator.prototype._buildFfmpegSize = function(w, h) {
-	if (!w && !h) {
+	if (!w &amp;&amp; !h) {
 		throw new Error("At least one of width or height must be provided.");
 	}
 	return (w || "?")+"x"+(h || "?");
@@ -183,7 +211,7 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 		var lastLocationSegmentIndex = null;
 		if (lastLocationSN !== null) {
 			lastLocationSegmentIndex = lastLocationSN - firstSN;
-			if (lastLocationSegmentIndex < 0 || lastLocationSegmentIndex > segments.length) {
+			if (lastLocationSegmentIndex &lt; 0 || lastLocationSegmentIndex > segments.length) {
 				// the segment screenshot was last from is no longer in playlist
 				lastLocationSegmentIndex = null;
 			}
@@ -248,7 +276,7 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 			}).catch((err) => {
 				this._logger.error("Error whilst handling segment.", err.stack);
 			}).then(() => {
-				if (!this._destroyed && i+1 < segments.length) {
+				if (!this._destroyed &amp;&amp; i+1 &lt; segments.length) {
 					// handle next segment
 					return handleSegment.bind(this)(i+1);
 				}
@@ -264,7 +292,7 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 			return;
 		}
 
-		if (this._playlistEnded && !this._endedEventEmitted) {
+		if (this._playlistEnded &amp;&amp; !this._endedEventEmitted) {
 			this._endedEventEmitted = true;
 			this._emit("playlistEnded");
 		}
@@ -291,8 +319,8 @@ ThumbnailGenerator.prototype._grabThumbnails = function() {
 
 ThumbnailGenerator.prototype._hasPlaylistChanged = function(newPlaylist) {
 	return !(
-		this._parsedPlaylist &&
-		this._parsedPlaylist.segments.length === newPlaylist.segments.length &&
+		this._parsedPlaylist &amp;&amp;
+		this._parsedPlaylist.segments.length === newPlaylist.segments.length &amp;&amp;
 		(this._parsedPlaylist.properties.mediaSequence || 0) === (newPlaylist.properties.mediaSequence || 0)
 	);
 };
@@ -460,7 +488,7 @@ ThumbnailGenerator.prototype._generateThumbnailsWithFfmpeg = function(segmentFil
 	var time = timeIntoSegment;
 	var promises = [];
 	var i = 0;
-	while (time < segment.properties.duration) {
+	while (time &lt; segment.properties.duration) {
 		((outputPath) => {
 			promises.push(this._generateThumbnailWithFfmpeg(segmentFileLocation, time, outputPath).then((success) => {
 				return Promise.resolve(success ? outputPath : null);
@@ -497,12 +525,12 @@ ThumbnailGenerator.prototype._getPlaylist = function() {
 
 			this._logger.error("Error trying to get playlist.", err.stack);
 
-			if (err instanceof this._BadStatusCodeException && err.extra === 404) {
+			if (err instanceof this._BadStatusCodeException &amp;&amp; err.extra === 404) {
 				// got a 404
 				return Promise.resolve(null);
 			}
 
-			if (numAttempts < 3) {
+			if (numAttempts &lt; 3) {
 				return this._wait(5000).then(() => {
 					return attempt.bind(this)();
 				});
@@ -556,7 +584,7 @@ ThumbnailGenerator.prototype._getUrlBuffer = function(url, dest) {
 				return;
 			}
 
-			if (res.statusCode < 200 || res.statusCode >= 300) {
+			if (res.statusCode &lt; 200 || res.statusCode >= 300) {
 				reject(new this._BadStatusCodeException(res.statusCode));
 				return;
 			}
@@ -606,4 +634,26 @@ ThumbnailGenerator.prototype._hash = function(str) {
 	return crypto.createHash("sha1").update(str).digest("hex");
 };
 
-module.exports = ThumbnailGenerator;
+module.exports = ThumbnailGenerator;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="SimpleThumbnailGenerator.html">SimpleThumbnailGenerator</a></li><li><a href="ThumbnailGenerator.html">ThumbnailGenerator</a></li><li><a href="ThumbnailGeneratorService.html">ThumbnailGeneratorService</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jul 16 2016 22:24:53 GMT+0100 (GMT Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

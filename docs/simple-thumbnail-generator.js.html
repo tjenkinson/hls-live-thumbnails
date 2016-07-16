@@ -1,4 +1,32 @@
-var path = require("path");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: simple-thumbnail-generator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: simple-thumbnail-generator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var path = require("path");
 var Logger = require("./logger");
 var ee = require("event-emitter");
 var ThumbnailGenerator = require("./thumbnail-generator");
@@ -95,7 +123,7 @@ SimpleThumbnailGenerator.prototype.destroy = function(doNotDeleteFiles) {
  * @type Object
  * @property {Number} sn The sequence number of the segment.
  * @property {Number|null} removalTime The time the segment was removed from the playlist.
- * @property {Array.<Thumbnail>} thumbnails The thumbnails for this segment. 
+ * @property {Array.&lt;Thumbnail>} thumbnails The thumbnails for this segment. 
  */
 
 /**
@@ -107,7 +135,7 @@ SimpleThumbnailGenerator.prototype.destroy = function(doNotDeleteFiles) {
 
 /**
  * Get an array of sequence numbers with their associated thumbnails.
- * @return {Array.<Segment>} Array of segments with their thumbnails.
+ * @return {Array.&lt;Segment>} Array of segments with their thumbnails.
  */
 SimpleThumbnailGenerator.prototype.getThumbnails = function() {
 	return this._segments.map((segment) => {
@@ -122,11 +150,11 @@ SimpleThumbnailGenerator.prototype.getThumbnails = function() {
 /**
  * Get an array of thumbnails for a particular sequence number.
  * @param  {Number} sn The sequence number.
- * @return {Array.<Thumbnail>|null}  The thumbnails or null if the segment doesn't exist.
+ * @return {Array.&lt;Thumbnail>|null}  The thumbnails or null if the segment doesn't exist.
  */
 SimpleThumbnailGenerator.prototype.getThumbnailsForSn = function(sn) {
 	var thumbnails = this._getSnThumbnails(sn);
-	return thumbnails && thumbnails.slice(0);
+	return thumbnails &amp;&amp; thumbnails.slice(0);
 };
 
 /**
@@ -168,7 +196,7 @@ SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 	});
 
 	this._generator.getEmitter().on("newThumbnail", (thumbnail) => {
-		if (thumbnail.sn < this._segmentRemovalTimes.offset) {
+		if (thumbnail.sn &lt; this._segmentRemovalTimes.offset) {
 			// this segment has expired
 			return;
 		}
@@ -199,7 +227,7 @@ SimpleThumbnailGenerator.prototype._markSegmentsAsRemoved = function(lastRemoved
 		return;
 	}
 	var now = Date.now();
-	for (var i=0; i<numRemoved; i++) {
+	for (var i=0; i&lt;numRemoved; i++) {
 		this._segmentRemovalTimes.times.push(now);
 	}
 };
@@ -210,7 +238,7 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 	var highestExpiredSegmentSn = null;
 	var offset = this._segmentRemovalTimes.offset;
 	this._segmentRemovalTimes.times = this._segmentRemovalTimes.times.filter((time, i) => {
-		if (time <= expireTime) {
+		if (time &lt;= expireTime) {
 			highestExpiredSegmentSn = offset + i;
 			return false;
 		}
@@ -223,7 +251,7 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 	this._segmentRemovalTimes.offset = highestExpiredSegmentSn+1;
 
 	this._segments = this._segments.filter((segment) => {
-		if (segment.sn <= highestExpiredSegmentSn) {
+		if (segment.sn &lt;= highestExpiredSegmentSn) {
 			this._logger.debug("Segment expired.", segment.sn);
 			segment.thumbnails.forEach((thumbnail) => {
 				var file = path.join(this._generatorOptions.outputDir, thumbnail.name);
@@ -240,7 +268,7 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 		return true;
 	});
 
-	if (this._playlistRemoved && this._segments.length === 0) {
+	if (this._playlistRemoved &amp;&amp; this._segments.length === 0) {
 		this._emit("finished");
 		this.destroy();
 	}
@@ -273,7 +301,7 @@ SimpleThumbnailGenerator.prototype._getSnThumbnails = function(sn, create) {
 		return null;
 	}
 
-	if (sn < this._segmentRemovalTimes.offset) {
+	if (sn &lt; this._segmentRemovalTimes.offset) {
 		throw new Error("This fragment has left the playlist.");
 	}
 
@@ -287,4 +315,26 @@ SimpleThumbnailGenerator.prototype._getSnThumbnails = function(sn, create) {
 	return newThumbnails;
 };
 
-module.exports = SimpleThumbnailGenerator;
+module.exports = SimpleThumbnailGenerator;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="SimpleThumbnailGenerator.html">SimpleThumbnailGenerator</a></li><li><a href="ThumbnailGenerator.html">ThumbnailGenerator</a></li><li><a href="ThumbnailGeneratorService.html">ThumbnailGeneratorService</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Jul 16 2016 22:24:53 GMT+0100 (GMT Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
