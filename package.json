@@ -5,7 +5,6 @@
   "main": "src/index.js",
   "bin": "src/cli.js",
   "scripts": {},
-  "private": true,
   "keywords": [
     "hls",
     "thumbnails",
