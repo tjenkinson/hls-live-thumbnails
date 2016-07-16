@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/hls-live-thumbnails.svg)](https://badge.fury.io/js/hls-live-thumbnails)
 # HLS Live Thumbnails
 A service which will generate thumbnails from a live HLS stream.
 
