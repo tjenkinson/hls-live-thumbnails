@@ -1,6 +1,6 @@
 {
   "name": "hls-live-thumbnails",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A service which will generate thumbnails from a live HLS stream.",
   "main": "src/index.js",
   "bin": "src/cli.js",
