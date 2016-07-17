@@ -48,7 +48,10 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 	this._segments = [];
 	this._playlistRemoved = false;
 	this._playlistEnded = false;
-	this._generator = new ThumbnailGenerator(generatorOptions);
+	this._generator = new ThumbnailGenerator(Object.assign({}, generatorOptions, {
+		// if the user doesn't provide a temp directory get a general one
+		tempDir: generatorOptions.tempDir || utils.getTempDir()
+	}));
 	this._gcTimerId = setInterval(this._gc.bind(this), 30000);
 	this._emitter = ee({});
 	this._registerGeneratorListeners();
@@ -152,6 +155,7 @@ SimpleThumbnailGenerator.prototype.hasPlaylistEnded = function() {
 SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 	this._generator.getEmitter().on("error", (err) => {
 		this._logger.error("Error from ThumbnailGenerator.", err);
+		this._emit("error", err);
 		this.destroy();
 	});
 

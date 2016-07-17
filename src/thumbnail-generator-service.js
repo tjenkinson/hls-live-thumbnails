@@ -1,6 +1,4 @@
 var crypto = require("crypto");
-var os = require("os");
-var path = require("path");
 var SimpleThumbnailGenerator = require("./simple-thumbnail-generator");
 var Logger = require("./logger");
 var express = require('express');
@@ -88,7 +86,7 @@ ThumbnailGeneratorService.prototype._initTempDir = function() {
 		return Promise.resolve();
 	}
 
-	var tempDir = path.join(os.tmpdir(), 'hls-live-thumbnails');
+	var tempDir = utils.getTempDir();
 	this._logger.debug("Initializing temp directory.");
 
 	return utils.exists(tempDir).then((exists) => {
@@ -183,7 +181,7 @@ ThumbnailGeneratorService.prototype._addListeners = function(id, generator) {
 	var emitter = generator.getEmitter();
 
 	emitter.on("error", (err) => {
-		this._logger.error("Generator error.", id, err);
+		this._logger.error("Generator error.", id, err.stack);
 		delete this._generators[id];
 	});
 

@@ -2,7 +2,7 @@
 # HLS Live Thumbnails
 A service which will generate thumbnails from a live HLS stream.
 
-Can be either used as a library or run as a service and controlled with http requests.
+Can be either used as a library, run as a service and controlled with http requests, or standalone for handling a single stream.
 
 ### ThumbnailGenerator
 This will generate thumbnails from a HLS stream and emit a `newThumbnail` event whenever a thumbnail is generated.
@@ -10,11 +10,19 @@ This will generate thumbnails from a HLS stream and emit a `newThumbnail` event 
 ### SimpleThumbnailGenerator
 This uses `ThumbnailGenerator` but will also remove thumbnails when their segments are removed from the playlist, or when the playlist no longer exists.
 You can configure a time to wait before removing thumbnails after their segments are removed using the `expireTime` option.
+This generates a JSON manifest file with information about the generated thumbnails.
 
-### Service
-You can run this as a service which will expose a http API for control.
+
+### Service & Standalone
+You can run this as a service which will expose a http API for control, or standalone.
+
+If run standalone the program will terminate with exit code 0 once all thumbnails have been generated and the stream has ended, or 1 if there was an error.
+
 These are the options:
-- **port**: The port to listen on. Defaults to 8080.
+- **url**: The URL of the stream. If specified 'port' or 'secret' must not be provided.
+- **manifestFileName**:  The name of the manifest file. Only valid with 'url' option and defaults to 'thumbnails.json'.
+- **port**: The port to listen on. Defaults to 8080, unless running standalone.
+- **clearOutputDir**: If provided the output directory will be emptied when the program starts.
 - **outputDir**: The directory to place the thumbnails and manifest file.
 - **tempDir**: A directory to use for temporary files. (Optional)
 - **secret**: A string which must be provided in a "x-secret" header for each request.
@@ -25,7 +33,8 @@ These are the options:
 - **width**: The default width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
 - **height**: The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
 
-E.g. `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width 300`
+E.g. Service: `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width 300`
+E.g. Standalone: `hls-live-thumbnails http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8  --width 300`
 
 #### API
 ##### POST /v1/start
@@ -51,7 +60,7 @@ The response is `{ended: <true if the stream has ended, no more thumbnails will 
 ##### DELETE /v1/generators/:id
 Terminate the generator with `id`. All of its thumbnails will be removed.
 
-#### Manifest File Format
+### Manifest File Format
 This is the structure of the manifest file. It will be called "thumbnails-[id].json".
 ```
 {

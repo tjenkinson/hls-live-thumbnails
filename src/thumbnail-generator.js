@@ -84,8 +84,8 @@ function ThumbnailGenerator(options) {
 		}
 	}).catch((err) => {
 		this._logger.error("Error determining playlist url.", err.stack);
-		this.destroy();
 		this._emit("error", err);
+		this.destroy();
 		throw err;
 	}).then(() => {
 		this._grabThumbnails();

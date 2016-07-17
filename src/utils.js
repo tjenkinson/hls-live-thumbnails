@@ -1,5 +1,6 @@
 var fs = require("fs");
 var path = require("path");
+var os = require("os");
 
 function emptyDir(dirPath) {
 	return readdir(dirPath).then((files) => {
@@ -140,6 +141,10 @@ function rename(src, dest) {
 	});
 }
 
+function getTempDir() {
+	return path.join(os.tmpdir(), 'hls-live-thumbnails');
+}
+
 module.exports = {
 	emptyDir: emptyDir,
 	unlink: unlink,
@@ -148,5 +153,6 @@ module.exports = {
 	stat: stat,
 	exists: exists,
 	writeFile,
-	rename: rename
+	rename: rename,
+	getTempDir: getTempDir
 };
