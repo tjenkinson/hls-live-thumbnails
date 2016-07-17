@@ -126,6 +126,18 @@ function writeFile(file, data, options) {
 	});
 }
 
+function rename(src, dest) {
+	return new Promise((resolve, reject) => {
+		fs.rename(src, dest, (err) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+			resolve();
+		});
+	});
+}
+
 module.exports = {
 	emptyDir: emptyDir,
 	unlink: unlink,
@@ -133,5 +145,6 @@ module.exports = {
 	verifiedUnlink: verifiedUnlink,
 	stat: stat,
 	exists: exists,
-	writeFile
+	writeFile,
+	rename: rename
 };

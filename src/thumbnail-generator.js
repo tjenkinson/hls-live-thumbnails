@@ -3,10 +3,8 @@ var url = require("url");
 var util = require("util");
 var crypto = require("crypto");
 var path = require("path");
-var fs = require("fs");
 var m3u8 = require("m3u8");
 var Ffmpeg = require("fluent-ffmpeg");
-var glob = require("glob");
 var ee = require('event-emitter');
 var Logger = require("./logger");
 var nullLogger = require("./null-logger");
@@ -304,14 +302,14 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 		var segmentBaseName = this._outputNamePrefix+"-"+segmentSN;
 		var extension = this._getExtension(segmentUrl);
 		var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
-		return this._bufferToFile(buffer, segmentFileLocation).then(() => {
+		return utils.writeFile(buffer, segmentFileLocation).then(() => {
 			var outputBaseFilePath = path.join(this._tempDir, segmentBaseName);
 			return this._generateThumbnailsWithFfmpeg(segmentFileLocation, segment, timeIntoSegment, outputBaseFilePath);
 		}).catch((err) => {
-			fs.unlink(segmentFileLocation);
+			utils.unlink(segmentFileLocation);
 			throw err;
 		}).then((files) => {
-			fs.unlink(segmentFileLocation);
+			utils.unlink(segmentFileLocation);
 
 			if (this._destroyed) {
 				return Promise.resolve([]);
@@ -326,7 +324,7 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 				}
 				var newFileName = segmentBaseName+"-"+i+".jpg";
 				var newLocation = path.join(this._outputDir, newFileName);
-				return this._rename(location, newLocation).then(() => {
+				return utils.rename(location, newLocation).then(() => {
 					return Promise.resolve(newFileName);
 				});
 			});
@@ -344,46 +342,6 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 				// filter out the nulls
 				return !!a;
 			});
-		});
-	});
-};
-
-ThumbnailGenerator.prototype._rename = function(src, dest) {
-	return new Promise((resolve, reject) => {
-		fs.rename(src, dest, (err) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-			resolve();
-		});
-	});
-};
-
-ThumbnailGenerator.prototype._exists = function(file) {
-	return new Promise((resolve, reject) => {
-		fs.stat(file, (err, stats) => {
-			if (err) {
-				if (err.code == 'ENOENT') {
-					resolve(false);
-				}
-				else {
-					reject(err);
-				}
-			}
-			resolve(true);
-		});
-	});
-};
-
-ThumbnailGenerator.prototype._stat = function(file) {
-	return new Promise((resolve, reject) => {
-		fs.stat(file, (err, stats) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-			resolve(stats);
 		});
 	});
 };
@@ -443,7 +401,7 @@ ThumbnailGenerator.prototype._generateThumbnailWithFfmpeg = function(segmentFile
 		.size(this._thumbnailSize)
 		.output(outputFilePath)
 		.on('end', (stdout, stderr) => {
-			this._exists(outputFilePath).then((exists) => {
+			utils.exists(outputFilePath).then((exists) => {
 				// ffmpeg might fail if the time is right near the end as the duration of the file might be slightly off
 				resolve(exists);
 			}).catch((err) => {
@@ -531,19 +489,6 @@ ThumbnailGenerator.prototype._parsePlaylist = function(playlistUrl) {
 	});
 };
 
-ThumbnailGenerator.prototype._bufferToFile = function(buffer, location) {
-	return new Promise((resolve, reject) => {
-		fs.writeFile(location, buffer, (err) => {
-			if (err) {
-				fs.unlink(location);
-				reject(err);
-				return;
-			}
-			resolve();
-		});
-	});
-};
-
 ThumbnailGenerator.prototype._getUrlBuffer = function(url, dest) {
 	return new Promise((resolve, reject) => {
 		request({
@@ -600,7 +545,6 @@ ThumbnailGenerator.prototype._emit = function() {
 		this._logger.error("Error in event handler.", err.stack);
 	}
 };
-
 
 ThumbnailGenerator.prototype._hash = function(str) {
 	return crypto.createHash("sha1").update(str).digest("hex");
