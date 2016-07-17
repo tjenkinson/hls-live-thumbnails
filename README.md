@@ -43,12 +43,12 @@ The response is `{id: <id which represents this generator>}`
 
 The manifest file will be called "thumbnails-[id].json".
 
-##### GET /v1/generators/<id>
+##### GET /v1/generators/:id
 Get information about the provided generator. A 404 will be returned if a generator no longer exists, e.g. if all thumbnails have expired.
 
 The response is `{ended: <true if the stream has ended, no more thumbnails will be generated>}`
 
-##### DELETE /v1/generators/<id>
+##### DELETE /v1/generators/:id
 Terminate the generator with `id`. All of its thumbnails will be removed.
 
 #### Manifest File Format
