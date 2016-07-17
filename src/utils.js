@@ -1,24 +1,26 @@
 var fs = require("fs");
+var path = require("path");
 
 function emptyDir(dirPath) {
 	return readdir(dirPath).then((files) => {
 		var promises = [];
 		files.forEach((file) => {
-			stat(file).then((stats) => {
+			var fullPath = path.join(dirPath, file);
+			promises.push(stat(fullPath).then((stats) => {
 				if (stats.isFile()) {
-					promises.push(unlink(file));
+					return unlink(fullPath);
 				}
 				else if (stats.isDirectory()) {
-					promises.push(emptyDir(file).then(() => {
+					return emptyDir(fullPath).then(() => {
 						// dir is now empty
 						// remove it
-						return rmdir(file);
-					}));
+						return rmdir(fullPath);
+					});
 				}
 				else {
 					throw new Error("Can't handle this type.");
 				}
-			});
+			}));
 		});
 		return Promise.all(promises);
 	});
