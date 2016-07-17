@@ -56,7 +56,7 @@ This is the structure of the manifest file. It will be called "thumbnails-[id].j
 ```
 {
   "ended":<true if the stream has ended>,
-  "segments": {
+  "segments": [{
     "sn": <segment sequence number>,
     "removalTime": <The time the segment was removed from the playlist, or null>,
     "thumbnails": [
@@ -69,6 +69,6 @@ This is the structure of the manifest file. It will be called "thumbnails-[id].j
         name: <thumbnail filename>
       }
     ]
-  }
+  }]
 }
 ```
