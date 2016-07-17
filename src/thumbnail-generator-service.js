@@ -77,7 +77,6 @@ ThumbnailGeneratorService.prototype.destroy = function() {
 	this._destroyed = true;
 	Object.keys(this._generators).forEach((id) => {
 		this._generators[id].destroy();
-		utils.verifiedUnlink(this._generateManifestFileName(id));
 	});
 	this._generators = {};
 	this._app && this._app.close();
@@ -171,7 +170,10 @@ ThumbnailGeneratorService.prototype._createGenerator = function(options) {
 		tempDir: this._tempDir,
 		outputNamePrefix: id
 	});
-	var generator = new SimpleThumbnailGenerator(this._simpleThumbnailGeneratorOptions, thumbnailGeneratorOptions);
+	var simpleThumbnailGeneratorOptions = Object.assign({}, this._simpleThumbnailGeneratorOptions, {
+		manifestFileName: this._generateManifestFileName(id)
+	});
+	var generator = new SimpleThumbnailGenerator(simpleThumbnailGeneratorOptions, thumbnailGeneratorOptions);
 	this._addListeners(id, generator);
 	this._generators[id] = generator;
 	return id;
@@ -187,43 +189,12 @@ ThumbnailGeneratorService.prototype._addListeners = function(id, generator) {
 
 	emitter.on("finished", () => {
 		this._logger.debug("Generator finished.", id);
-		utils.verifiedUnlink(this._generateManifestFileName(id));
 		delete this._generators[id];
-	});
-
-	emitter.on("thumbnailsChanged", () => {
-		this._logger.debug("Thumbnails changed.", id);
-		this._updateManifest(id, generator);
-	});
-
-	emitter.on("playlistEnded", (err) => {
-		this._logger.debug("Playlist ended.", id);
-		this._updateManifest(id, generator);
-	});
-};
-
-ThumbnailGeneratorService.prototype._updateManifest = function(id, generator) {
-	var segments = generator.getThumbnails();
-	var ended = generator.hasPlaylistEnded();
-	var manifest = JSON.stringify({
-		segments: segments,
-		ended: ended
-	});
-	var manifestFile = this._generateManifestFileName(id);
-	utils.writeFile(manifestFile, manifest).then(() => {
-		if (this._destroyed) {
-			// delete it
-			utils.verifiedUnlink(manifestFile);
-		}
-	}).catch(() => {
-		if (!this._destroyed) {
-			this._logger.error("Error writing manifest file.");
-		}
 	});
 };
 
 ThumbnailGeneratorService.prototype._generateManifestFileName = function(id) {
-	return path.join(this._outputDir, "thumbnails-"+id+".json");
+	return "thumbnails-"+id+".json";
 };
 
 ThumbnailGeneratorService.prototype._generateId = function() {

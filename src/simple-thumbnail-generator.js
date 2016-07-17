@@ -9,6 +9,7 @@ var nullLogger = require("./null-logger");
  * Starts generating the thumbnails using the configuration in `generatorOptions`.
  * Removes thumbnails when they their segments are removed from the playlist after `expireTime` seconds.
  * @constructor
+ * @param {String} options.manifestFileName The name for the manifest file.
  * @param {Object} options The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
  * @param {Number} [options.expireTime] The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
  * @param {Number} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
@@ -17,6 +18,10 @@ var nullLogger = require("./null-logger");
 function SimpleThumbnailGenerator(options, generatorOptions) {
 	options = options || {};
 	generatorOptions = generatorOptions || {};
+
+	if (!options.manifestFileName) {
+		throw new Error("manifestFileName required.");
+	}
 
 	if (typeof(options.logger) === "undefined") {
 		this._logger = Logger.get('SimpleThumbnailGenerator');
@@ -30,6 +35,7 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 		}
 	}
 	this._generatorOptions = generatorOptions;
+	this._manifestFileName = options.manifestFileName;
 	this._expireTime = options.expireTime || 0;
 	this._segmentRemovalTimes = {
 		// the sn of the first fragment in the array
@@ -46,6 +52,7 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 	this._gcTimerId = setInterval(this._gc.bind(this), 30000);
 	this._emitter = ee({});
 	this._registerGeneratorListeners();
+	this._updateManifest();
 }
 
 /**
@@ -67,7 +74,7 @@ SimpleThumbnailGenerator.prototype.getEmitter = function() {
 /**
  * Destroy the generator.
  * It will stop generating thumbnails and firing events.
- * @param {Boolean} [doNotDeleteFiles] If `true` thumbnails won't be deleted.
+ * @param {Boolean} [doNotDeleteFiles] If `true` thumbnails and manifest won't be deleted.
  */
 SimpleThumbnailGenerator.prototype.destroy = function(doNotDeleteFiles) {
 	if (this._destroyed) {
@@ -84,6 +91,11 @@ SimpleThumbnailGenerator.prototype.destroy = function(doNotDeleteFiles) {
 					this._logger.error("Error trying to delete thumbnail.", file, err.stack);
 				});
 			});
+		});
+		utils.verifiedUnlink(this._generateManifestFileName()).then(() => {
+			this._logger.debug("Manifest deleted.");
+		}).catch((err) => {
+			this._logger.error("Error deleting manifest.", err);
 		});
 	}
 	clearInterval(this._gcTimerId);
@@ -156,6 +168,7 @@ SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 
 	this._generator.getEmitter().on("playlistEnded", () => {
 		this._playlistEnded = true;
+		this._updateManifest();
 		this._emit("playlistEnded");
 	});
 
@@ -184,6 +197,7 @@ SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 		});
 
 		this._logger.debug("Thumbnails changed.", thumbnail);
+		this._updateManifest();
 		this._emit("newThumbnail". thumbnail);
 		this._emit("thumbnailsChanged");
 	});
@@ -229,6 +243,7 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 				var file = path.join(this._generatorOptions.outputDir, thumbnail.name);
 				return utils.verifiedUnlink(file).then(() => {
 					this._logger.debug("Thumbnail deleted.", file);
+					this._updateManifest();
 					this._emit("thumbnailRemoved". thumbnail);
 					this._emit("thumbnailsChanged");
 				}).catch((err) => {
@@ -244,6 +259,30 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 		this._emit("finished");
 		this.destroy();
 	}
+};
+
+SimpleThumbnailGenerator.prototype._updateManifest = function() {
+	var segments = this.getThumbnails();
+	var ended = this._playlistEnded;
+	var manifest = JSON.stringify({
+		segments: segments,
+		ended: ended
+	});
+	var manifestFile = this._generateManifestFileName();
+	utils.writeFile(manifestFile, manifest).then(() => {
+		if (this._destroyed) {
+			// delete it
+			utils.verifiedUnlink(manifestFile);
+		}
+	}).catch((err) => {
+		if (!this._destroyed) {
+			this._logger.error("Error writing manifest file.", err);
+		}
+	});
+};
+
+SimpleThumbnailGenerator.prototype._generateManifestFileName = function() {
+	return path.join(this._generatorOptions.outputDir, this._manifestFileName);
 };
 
 SimpleThumbnailGenerator.prototype._emit = function() {
