@@ -5,10 +5,11 @@ var crypto = require("crypto");
 var path = require("path");
 var m3u8 = require("m3u8");
 var Ffmpeg = require("fluent-ffmpeg");
-var ee = require('event-emitter');
+var ee = require("event-emitter");
 var Logger = require("./logger");
 var nullLogger = require("./null-logger");
-var config = require('./config');
+var config = require("./config");
+var utils = require("./utils")
 
 var ffmpegTimeout = config.ffmpegTimeout;
 
@@ -299,48 +300,55 @@ ThumbnailGenerator.prototype._hasPlaylistChanged = function(newPlaylist) {
 ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, timeIntoSegment) {
 	var segmentUrl = url.resolve(this._resolvedPlaylistUrl, segment.properties.uri);
 	return this._getUrlBuffer(segmentUrl).then((buffer) => {
-		var segmentBaseName = this._outputNamePrefix+"-"+segmentSN;
-		var extension = this._getExtension(segmentUrl);
-		var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
-		return utils.writeFile(buffer, segmentFileLocation).then(() => {
-			var outputBaseFilePath = path.join(this._tempDir, segmentBaseName);
-			return this._generateThumbnailsWithFfmpeg(segmentFileLocation, segment, timeIntoSegment, outputBaseFilePath);
-		}).catch((err) => {
-			utils.unlink(segmentFileLocation);
-			throw err;
-		}).then((files) => {
-			utils.unlink(segmentFileLocation);
-
-			if (this._destroyed) {
-				return Promise.resolve([]);
+		return utils.exists(this._tempDir).then((exists) => {
+			if (!exists) {
+				// create temp directory
+				return utils.mkdir(this._tempDir);
 			}
+		}).then(() => {
+			var segmentBaseName = this._outputNamePrefix+"-"+segmentSN;
+			var extension = this._getExtension(segmentUrl);
+			var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
+			return utils.writeFile(segmentFileLocation, buffer).then(() => {
+				var outputBaseFilePath = path.join(this._tempDir, segmentBaseName);
+				return this._generateThumbnailsWithFfmpeg(segmentFileLocation, segment, timeIntoSegment, outputBaseFilePath);
+			}).catch((err) => {
+				utils.unlink(segmentFileLocation);
+				throw err;
+			}).then((files) => {
+				utils.unlink(segmentFileLocation);
 
-			// move the files to the output folder with proper names
-			var promises = files.map((location, i) => {
-				if (!location) {
-					// generation failed for some reason
-					// might have been just past the end of the file
-					return Promise.resolve(null);
+				if (this._destroyed) {
+					return Promise.resolve([]);
 				}
-				var newFileName = segmentBaseName+"-"+i+".jpg";
-				var newLocation = path.join(this._outputDir, newFileName);
-				return utils.rename(location, newLocation).then(() => {
-					return Promise.resolve(newFileName);
+
+				// move the files to the output folder with proper names
+				var promises = files.map((location, i) => {
+					if (!location) {
+						// generation failed for some reason
+						// might have been just past the end of the file
+						return Promise.resolve(null);
+					}
+					var newFileName = segmentBaseName+"-"+i+".jpg";
+					var newLocation = path.join(this._outputDir, newFileName);
+					return utils.rename(location, newLocation).then(() => {
+						return Promise.resolve(newFileName);
+					});
 				});
-			});
-			return Promise.all(promises);
-		}).then((fileNames) => {
-			return fileNames.map((fileName, i) => {
-				if (!fileName) {
-					return null;
-				}
-				return {
-					name: fileName,
-					time: timeIntoSegment + (this._interval*i)
-				};
-			}).filter((a) => {
-				// filter out the nulls
-				return !!a;
+				return Promise.all(promises);
+			}).then((fileNames) => {
+				return fileNames.map((fileName, i) => {
+					if (!fileName) {
+						return null;
+					}
+					return {
+						name: fileName,
+						time: timeIntoSegment + (this._interval*i)
+					};
+				}).filter((a) => {
+					// filter out the nulls
+					return !!a;
+				});
 			});
 		});
 	});

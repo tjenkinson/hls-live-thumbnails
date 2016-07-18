@@ -75,6 +75,7 @@ var thumbnailGeneratorOptions = {
 	outputDir: outputDir,
 	tempDir: tempDir,
 	interval: interval,
+	initialThumbnailCount: initialThumbnailCount,
 	targetThumbnailCount: targetThumbnailCount,
 	width: width,
 	height: height
