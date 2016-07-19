@@ -4,6 +4,13 @@ A service which will generate thumbnails from a live HLS stream.
 
 Can be either used as a library, run as a service and controlled with http requests, or standalone for handling a single stream.
 
+### Installation
+- Install [ffmpeg](https://ffmpeg.org/download.html) globally. You should be able to simply `ffmpeg` at a command prompt.
+- `npm install -g hls-live-thumbnails` to install globally.
+
+### Demo
+Run `hls-live-thumbnails https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8`.
+
 ### ThumbnailGenerator
 This will generate thumbnails from a HLS stream and emit a `newThumbnail` event whenever a thumbnail is generated.
 
@@ -34,7 +41,7 @@ These are the options:
 - **height**: The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
 
 E.g. Service: `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width 300`
-E.g. Standalone: `hls-live-thumbnails http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8  --width 300`
+E.g. Standalone: `hls-live-thumbnails https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8  --width 300`
 
 #### API
 ##### POST /v1/start
