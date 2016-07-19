@@ -95,7 +95,8 @@ SimpleThumbnailGenerator.prototype.destroy = function(doNotDeleteFiles) {
 				});
 			});
 		});
-		utils.verifiedUnlink(this._generateManifestFileName()).then(() => {
+		var manifestFile = path.join(this._generatorOptions.outputDir, this._manifestFileName);
+		utils.verifiedUnlink(manifestFile).then(() => {
 			this._logger.debug("Manifest deleted.");
 		}).catch((err) => {
 			this._logger.error("Error deleting manifest.", err);
@@ -272,21 +273,20 @@ SimpleThumbnailGenerator.prototype._updateManifest = function() {
 		segments: segments,
 		ended: ended
 	});
-	var manifestFile = this._generateManifestFileName();
-	utils.writeFile(manifestFile, manifest).then(() => {
-		if (this._destroyed) {
-			// delete it
-			utils.verifiedUnlink(manifestFile);
-		}
+	var outputDir = this._generatorOptions.outputDir;
+	var manifestFile = path.join(outputDir, this._manifestFileName);
+	return utils.ensureExists(outputDir).then(() => {
+		return utils.writeFile(manifestFile, manifest).then(() => {
+			if (this._destroyed) {
+				// delete it
+				return utils.verifiedUnlink(manifestFile);
+			}
+		});
 	}).catch((err) => {
 		if (!this._destroyed) {
 			this._logger.error("Error writing manifest file.", err);
 		}
 	});
-};
-
-SimpleThumbnailGenerator.prototype._generateManifestFileName = function() {
-	return path.join(this._generatorOptions.outputDir, this._manifestFileName);
 };
 
 SimpleThumbnailGenerator.prototype._emit = function() {
