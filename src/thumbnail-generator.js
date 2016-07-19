@@ -327,7 +327,7 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 					var newFileName = segmentBaseName+"-"+i+".jpg";
 					var newLocation = path.join(this._outputDir, newFileName);
 					return utils.ensureExists(this._outputDir).then(() => {
-						return utils.rename(location, newLocation).then(() => {
+						return utils.move(location, newLocation).then(() => {
 							return Promise.resolve(newFileName);
 						});
 					});
