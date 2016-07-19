@@ -79,6 +79,15 @@ function exists(file) {
 	});
 }
 
+function ensureExists(dir) {
+	return exists(dir).then((exists) => {
+		if (!exists) {
+			return mkdir(dir);
+		}
+	});
+}
+
+
 function unlink(file) {
 	return new Promise((resolve, reject) => {
 		fs.unlink(file, (err) => {
@@ -152,6 +161,7 @@ module.exports = {
 	verifiedUnlink: verifiedUnlink,
 	stat: stat,
 	exists: exists,
+	ensureExists: ensureExists,
 	writeFile,
 	rename: rename,
 	getTempDir: getTempDir
