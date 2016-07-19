@@ -9,7 +9,7 @@ var ee = require("event-emitter");
 var Logger = require("./logger");
 var nullLogger = require("./null-logger");
 var config = require("./config");
-var utils = require("./utils")
+var utils = require("./utils");
 
 var ffmpegTimeout = config.ffmpegTimeout;
 
