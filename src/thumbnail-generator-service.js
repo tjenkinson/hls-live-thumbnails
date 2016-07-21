@@ -24,6 +24,7 @@ var utils = require("./utils");
  * @param {Object} options
  * @param {Number} [options.port] The port to listen on. Defaults to 8080.
  * @param {String} [options.secret] A secret which is required with requests. Defaults to null which disables this. If enabled secret should be procided in "x-secret" header for api requests.
+ * @param {String} [options.pingInterval] If a ping request isn't made every 'pingInterval' seconds then thumbnail generation will stop. Defaults to disabled.
  * @param {Number} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  * @param {Object} [simpleThumbnailGeneratorOptions] Default configuraton for `ThumbnailGenerator`.
  * @param {Object} [thumbnailGeneratorOptions] Default configuraton for `SimpleThumbnailGenerator`. Note the temp directory will be automatically generated and managed if not provided.
@@ -48,12 +49,14 @@ function ThumbnailGeneratorService(options, simpleThumbnailGeneratorOptions, thu
 
 	this._port = options.port || 8080;
 	this._secret = options.secret || null;
+	this._pingInterval = options.pingInterval || null;
 	this._outputDir = this._thumbnailGeneratorOptions.outputDir;
 	this._tempDir = this._thumbnailGeneratorOptions.tempDir || null;
 	this._destroyed = false;
 	// generators by id
 	this._generators = {};
 	this._app = null;
+	this._pingTimeoutIds = {};
 	this._initTempDir().then(() => {
 		if (this._destroyed) {
 			return;
@@ -137,10 +140,13 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 	});
 
 	app.get('/v1/generators/:id', (req, res) => {
-		var generator = this._generators[req.params.id];
+		var id = req.params.id;
+		var generator = this._generators[id];
 		if (!generator) {
 			res.status(404).send({ error: 'Generator does not exist.' });
+			return;
 		}
+		this._schedulePingTimeout(id, generator);
 		res.send({
 			ended: generator.hasPlaylistEnded()
 		});
@@ -155,6 +161,10 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 		}
 		generator.destroy();
 		delete this._generators[id];
+		if (this._pingInterval) {
+			clearTimeout(this._pingTimeoutIds[id]);
+			delete this._pingTimeoutIds[id];
+		}
 		res.send("Deleted.");
 	});
 
@@ -174,7 +184,25 @@ ThumbnailGeneratorService.prototype._createGenerator = function(options) {
 	var generator = new SimpleThumbnailGenerator(simpleThumbnailGeneratorOptions, thumbnailGeneratorOptions);
 	this._addListeners(id, generator);
 	this._generators[id] = generator;
+	this._schedulePingTimeout(id, generator);
 	return id;
+};
+
+ThumbnailGeneratorService.prototype._schedulePingTimeout = function(id, generator) {
+	if (!this._pingInterval) {
+		// disabled
+		return;
+	}
+	if (typeof(this._pingTimeoutIds[id]) !== "undefined") {
+		// reset ping timeout
+		clearTimeout(this._pingTimeoutIds[id]);
+	}
+	this._pingTimeoutIds[id] = setTimeout(() => {
+		generator.destroy();
+		delete this._generators[id];
+		delete this._pingTimeoutIds[id];
+		this._logger.debug("Generator destroyed because ping missed.", id);
+	}, this._pingInterval * 1000);
 };
 
 ThumbnailGeneratorService.prototype._addListeners = function(id, generator) {

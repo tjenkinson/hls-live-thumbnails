@@ -22,6 +22,7 @@ These are the options:
 - **url**: The URL of the stream. If specified 'port' or 'secret' must not be provided.
 - **manifestFileName**:  The name of the manifest file. Only valid with 'url' option and defaults to 'thumbnails.json'.
 - **port**: The port to listen on. Defaults to 8080, unless running standalone.
+- **pingInterval**: If a ping request isn't made every 'pingInterval' seconds then thumbnail generation will stop. Defaults to disabled.
 - **clearOutputDir**: If provided the output directory will be emptied when the program starts.
 - **outputDir**: The directory to place the thumbnails and manifest file.
 - **tempDir**: A directory to use for temporary files. (Optional)
@@ -56,6 +57,8 @@ The manifest file will be called "thumbnails-[id].json".
 Get information about the provided generator. A 404 will be returned if a generator no longer exists, e.g. if all thumbnails have expired.
 
 The response is `{ended: <true if the stream has ended, no more thumbnails will be generated>}`
+
+This counts as a 'ping'. Look at the 'pingInterval' option.
 
 ##### DELETE /v1/generators/:id
 Terminate the generator with `id`. All of its thumbnails will be removed.

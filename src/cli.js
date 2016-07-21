@@ -14,6 +14,8 @@ var optionDefinitions = [
 	
 	// If provided start a server running on this port listening for commands
 	{ name: 'port', alias: 'p', type: Number, defaultValue: null },
+	// Ping request must be made every pingInterval seconds or thumbnail generation will automatically stop. Defaults to disabled.
+	{ name: 'pingInterval', type: Number },
 	// empty the output directory on startup
 	{ name: 'clearOutputDir', type: Boolean, defaultValue: false },
 	{ name: 'outputDir', alias: 'o', type: String, defaultValue: "./output" },
@@ -30,13 +32,17 @@ var optionDefinitions = [
 	// The default width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
 	{ name: 'width', alias: 'w', type: Number },
 	// The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
-	{ name: 'height', alias: 'h', type: Number },
+	{ name: 'height', alias: 'h', type: Number }
 ];
 
 var options = commandLineArgs(optionDefinitions);
 
 if (options.url && options.port !== null) {
 	throw new Error("Cannot use 'url' and 'port' together.");
+}
+
+if (options.url && options.pingInterval) {
+	throw new Error("Cannot use 'url' and 'pingInterval' together.");
 }
 
 if (options.url && options.secret) {
@@ -55,6 +61,7 @@ var logger = Logger.get("SimpleThumbnailGeneratorCLI");
 var url = options.url;
 var manifestFileName = url ? options.manifestFileName || "thumbnails.json" : null;
 var port = !url ? options.port || 8080 : null;
+var pingInterval = options.pingInterval || null;
 var clearOutputDir = options.clearOutputDir;
 var outputDir = path.resolve(options.outputDir);
 var tempDir = options.tempDir ? path.resolve(options.tempDir) : null;
@@ -110,7 +117,8 @@ Promise.resolve().then(() => {
 	else {
 		new ThumbnailGeneratorService({
 			secret: secret,
-			port: port
+			port: port,
+			pingInterval: pingInterval
 		}, simpleThumbnailGeneratorOptions, thumbnailGeneratorOptions);
 	}
 }).catch((err) => {
