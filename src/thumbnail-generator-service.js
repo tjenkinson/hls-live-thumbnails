@@ -92,12 +92,7 @@ ThumbnailGeneratorService.prototype._initTempDir = function() {
 	var tempDir = utils.getTempDir();
 	this._logger.debug("Initializing temp directory.");
 
-	return utils.exists(tempDir).then((exists) => {
-		if (!exists) {
-			return utils.mkdir(tempDir);
-		}
-		return Promise.resolve();
-	}).then(() => {
+	return utils.ensureExists(tempDir).then(() => {
 		return utils.emptyDir(tempDir);
 	}).then(() => {
 		this._tempDir = tempDir;

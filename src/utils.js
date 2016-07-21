@@ -79,6 +79,15 @@ function exists(file) {
 	});
 }
 
+function ensureExists(dir) {
+	return exists(dir).then((exists) => {
+		if (!exists) {
+			return mkdir(dir);
+		}
+	});
+}
+
+
 function unlink(file) {
 	return new Promise((resolve, reject) => {
 		fs.unlink(file, (err) => {
@@ -129,6 +138,32 @@ function writeFile(file, data, options) {
 	});
 }
 
+// http://stackoverflow.com/a/14387791
+function copy(src, dest) {
+	return new Promise((resolve, reject) => {
+		var cbCalled = false;
+		var rd = fs.createReadStream(src);
+		rd.on("error", (err) => {
+			done(err);
+		});
+		var wr = fs.createWriteStream(dest);
+		wr.on("error", (err) => {
+			done(err);
+		});
+		wr.on("close", () => {
+			done();
+		});
+		rd.pipe(wr);
+
+		function done(err) {
+			if (!cbCalled) {
+				cbCalled = true;
+				!err ? resolve() : reject(err);
+			}
+		}
+	});
+}
+
 function rename(src, dest) {
 	return new Promise((resolve, reject) => {
 		fs.rename(src, dest, (err) => {
@@ -137,6 +172,17 @@ function rename(src, dest) {
 				return;
 			}
 			resolve();
+		});
+	});
+}
+
+// try rename(), and if fails (ie different drive), copy then delete
+function move(src, dest) {
+	return rename(src, dest).catch((err) => {
+		// try copying
+		return copy(src, dest).then(() => {
+			// delete source
+			return unlink(src);
 		});
 	});
 }
@@ -152,7 +198,10 @@ module.exports = {
 	verifiedUnlink: verifiedUnlink,
 	stat: stat,
 	exists: exists,
-	writeFile,
+	ensureExists: ensureExists,
+	writeFile: writeFile,
+	copy: copy,
 	rename: rename,
+	move: move,
 	getTempDir: getTempDir
 };

@@ -300,12 +300,7 @@ ThumbnailGenerator.prototype._hasPlaylistChanged = function(newPlaylist) {
 ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, timeIntoSegment) {
 	var segmentUrl = url.resolve(this._resolvedPlaylistUrl, segment.properties.uri);
 	return this._getUrlBuffer(segmentUrl).then((buffer) => {
-		return utils.exists(this._tempDir).then((exists) => {
-			if (!exists) {
-				// create temp directory
-				return utils.mkdir(this._tempDir);
-			}
-		}).then(() => {
+		return utils.ensureExists(this._tempDir).then(() => {
 			var segmentBaseName = this._outputNamePrefix+"-"+segmentSN;
 			var extension = this._getExtension(segmentUrl);
 			var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
@@ -331,8 +326,10 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 					}
 					var newFileName = segmentBaseName+"-"+i+".jpg";
 					var newLocation = path.join(this._outputDir, newFileName);
-					return utils.rename(location, newLocation).then(() => {
-						return Promise.resolve(newFileName);
+					return utils.ensureExists(this._outputDir).then(() => {
+						return utils.move(location, newLocation).then(() => {
+							return Promise.resolve(newFileName);
+						});
 					});
 				});
 				return Promise.all(promises);
