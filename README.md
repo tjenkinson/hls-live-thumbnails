@@ -1,4 +1,6 @@
-[![npm version](https://badge.fury.io/js/hls-live-thumbnails.svg)](https://badge.fury.io/js/hls-live-thumbnails)
+[![npm version](https://img.shields.io/npm/v/hls-live-thumbnails.svg?maxAge=2592000)](https://www.npmjs.com/package/hls-live-thumbnails)
+[![npm](https://img.shields.io/npm/dm/hls-live-thumbnails.svg?maxAge=2592000)](https://www.npmjs.com/package/hls-live-thumbnails)
+[![npm](https://img.shields.io/npm/dt/hls-live-thumbnails.svg?maxAge=2592000)](https://www.npmjs.com/package/hls-live-thumbnails)
 # HLS Live Thumbnails
 A service which will generate thumbnails from a live HLS stream.
 
