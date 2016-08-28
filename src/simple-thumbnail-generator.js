@@ -203,7 +203,7 @@ SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 
 		this._logger.debug("Thumbnails changed.", thumbnail);
 		this._updateManifest();
-		this._emit("newThumbnail". thumbnail);
+		this._emit("newThumbnail", thumbnail);
 		this._emit("thumbnailsChanged");
 	});
 };
