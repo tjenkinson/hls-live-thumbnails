@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 var path = require("path");
 var commandLineArgs = require('command-line-args');
 var SimpleThumbnailGenerator = require("./simple-thumbnail-generator");
