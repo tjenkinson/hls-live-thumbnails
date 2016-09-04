@@ -163,7 +163,7 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 		res.send("Deleted.");
 	});
 
-	app.listen(this._port);
+	app.listen(this._port, "0.0.0.0");
 	this._app = app;
 };
 
