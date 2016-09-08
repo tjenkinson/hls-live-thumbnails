@@ -29,7 +29,7 @@
     "request": "^2.73.0"
   },
   "devDependencies": {
-    "jsdoc": "^3.4.0",
+    "jsdoc": "^3.4.1",
     "jshint": "^2.9.2"
   }
 }
