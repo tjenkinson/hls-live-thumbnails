@@ -8,6 +8,10 @@
     "generateDocs": "./node_modules/.bin/jsdoc -r -d ./docs ./src",
     "lint": "./node_modules/.bin/jshint src/"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:tjenkinson/hls-live-thumbnails.git"
+  },
   "keywords": [
     "hls",
     "thumbnails",
@@ -18,6 +22,10 @@
   ],
   "author": "Tom Jenkinson",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjenkinson/hls-live-thumbnails/issues"
+  },
+  "homepage": "https://github.com/tjenkinson/hls-live-thumbnails",
   "dependencies": {
     "body-parser": "^1.15.2",
     "command-line-args": "^3.0.0",
