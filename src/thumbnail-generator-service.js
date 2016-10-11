@@ -122,8 +122,12 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 		var options = {
 			playlistUrl: url
 		};
-		req.body.width && (options.width = parseInt(req.body.width));
-		req.body.height && (options.height = parseInt(req.body.height));
+		// thumbnailWidth and thumbnailHeight should be used
+		// width and height for backwards compatibility (#9)
+		var width = req.body.thumbnailWidth || req.body.width;
+		var height = req.body.thumbnailHeight || req.body.height;
+		width && (options.width = parseInt(width));
+		height && (options.height = parseInt(height));
 		req.body.interval && (options.interval = parseInt(req.body.interval));
 		req.body.initialThumbnailCount && (options.initialThumbnailCount = parseInt(req.body.initialThumbnailCount));
 		req.body.targetThumbnailCount && (options.targetThumbnailCount = parseInt(req.body.targetThumbnailCount));
