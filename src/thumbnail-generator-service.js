@@ -119,6 +119,16 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 		if (!url) {
 			throw new Error("URL required.");
 		}
+		var id = req.body.id;
+		if (typeof(id) === "undefined") {
+			id = this._generateId();
+		}
+		else if (/[^A-Za-z0-9\-]/.test(id) || id.length === 0) {
+			throw new Error("Invalid ID. Must be alpha numberic.");
+		}
+		else if (this._generators[id]) {
+			throw new Error("A generator with the provided ID already exists.");
+		}
 		var options = {
 			playlistUrl: url
 		};
@@ -128,7 +138,7 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 		req.body.initialThumbnailCount && (options.initialThumbnailCount = parseInt(req.body.initialThumbnailCount));
 		req.body.targetThumbnailCount && (options.targetThumbnailCount = parseInt(req.body.targetThumbnailCount));
 
-		var id = this._createGenerator(options);
+		this._createGenerator(id, options);
 		res.send({
 			id: id
 		});
@@ -167,8 +177,7 @@ ThumbnailGeneratorService.prototype._createServer = function() {
 	this._app = app;
 };
 
-ThumbnailGeneratorService.prototype._createGenerator = function(options) {
-	var id = this._generateId();
+ThumbnailGeneratorService.prototype._createGenerator = function(id, options) {
 	var thumbnailGeneratorOptions = Object.assign({}, this._thumbnailGeneratorOptions, options, {
 		tempDir: this._tempDir,
 		outputNamePrefix: id
@@ -180,7 +189,6 @@ ThumbnailGeneratorService.prototype._createGenerator = function(options) {
 	this._addListeners(id, generator);
 	this._generators[id] = generator;
 	this._schedulePingTimeout(id, generator);
-	return id;
 };
 
 ThumbnailGeneratorService.prototype._schedulePingTimeout = function(id, generator) {

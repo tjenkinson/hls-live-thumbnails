@@ -57,6 +57,7 @@ The following parameters are allowed:
 - **interval**: Override `interval` option. (Optional)
 - **initialThumbnailCount**: Override `initialThumbnailCount` option. (Optional)
 - **targetThumbnailCount**: Override `targetThumbnailCount` option. (Optional)
+- **id**: Provide an alpha-numeric ID for this generator. (Optional. Will be generated automatically if not provided.)
 
 The response is `{id: <id which represents this generator>}`
 
