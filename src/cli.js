@@ -12,6 +12,8 @@ var optionDefinitions = [
 	{ name: 'url', alias: 'u', type: String, defaultOption: true },
 	// If url provided use this file name for the manifest file.
 	{ name: 'manifestFileName', alias: 'm', type: String},
+	// If url provided use this as a prefix for the thumbnail file names.
+	{ name: 'outputNamePrefix', type: String, defaultValue: null },
 	
 	// If provided start a server running on this port listening for commands
 	{ name: 'port', alias: 'p', type: Number, defaultValue: null },
@@ -54,6 +56,10 @@ if (!options.url && options.manifestFileName) {
 	throw new Error("'manifestFileName' can only be used with the 'url' option.");
 }
 
+if (!options.url && options.outputNamePrefix) {
+	throw new Error("'outputNamePrefix' can only be used with the 'url' option.");
+}
+
 if (port !== null && options.port % 1 !== 0) {
 	throw new Error("Port invalid.");
 }
@@ -61,6 +67,7 @@ if (port !== null && options.port % 1 !== 0) {
 var logger = Logger.get("SimpleThumbnailGeneratorCLI");
 var url = options.url;
 var manifestFileName = url ? options.manifestFileName || "thumbnails.json" : null;
+var outputNamePrefix = options.outputNamePrefix || null;
 var port = !url ? options.port || 8080 : null;
 var pingInterval = options.pingInterval || null;
 var clearOutputDir = options.clearOutputDir;
@@ -103,6 +110,7 @@ Promise.resolve().then(() => {
 }).then(() => {
 	if (url) {
 		// generate thumbnails for this url and then terminate
+		thumbnailGeneratorOptions.outputNamePrefix = outputNamePrefix;
 		var generator = new SimpleThumbnailGenerator(simpleThumbnailGeneratorOptions, thumbnailGeneratorOptions);
 		var emitter = generator.getEmitter();
 		emitter.on("error", (err) => {
