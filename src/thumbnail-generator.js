@@ -26,7 +26,7 @@ var ffmpegTimeout = config.ffmpegTimeout;
  * @param {Number} [options.targetThumbnailCount] The number of thumbnails that should be generated over the duration of the stream. Defaults to 30. This will be recalculated if the stream duration changes.
  * @param {Number} [options.thumbnailWidth] The width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
  * @param {Number} [options.thumbnailHeight] The height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
- * @param {String} [options.outputNamePrefix] This will be prepended to the thumbnail names. If omitted this will be generated automatically.
+ * @param {String|Function} [options.outputNamePrefix] This will be prepended to the thumbnail names. If omitted this will be generated automatically.
  * @param {Object} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  */
 function ThumbnailGenerator(options) {
@@ -301,7 +301,8 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 	var segmentUrl = url.resolve(this._resolvedPlaylistUrl, segment.properties.uri);
 	return this._getUrlBuffer(segmentUrl).then((buffer) => {
 		return utils.ensureExists(this._tempDir).then(() => {
-			var segmentBaseName = this._outputNamePrefix+"-"+segmentSN;
+            
+			var segmentBaseName = (typeof this._outputNamePrefix == "function" ? this._outputNamePrefix() : this._outputNamePrefix)+"-"+segmentSN;
 			var extension = this._getExtension(segmentUrl);
 			var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
 			return utils.writeFile(segmentFileLocation, buffer).then(() => {
