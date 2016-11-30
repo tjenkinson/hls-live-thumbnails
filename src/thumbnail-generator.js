@@ -301,8 +301,7 @@ ThumbnailGenerator.prototype._generateThumbnails = function(segment, segmentSN, 
 	var segmentUrl = url.resolve(this._resolvedPlaylistUrl, segment.properties.uri);
 	return this._getUrlBuffer(segmentUrl).then((buffer) => {
 		return utils.ensureExists(this._tempDir).then(() => {
-            
-			var segmentBaseName = (typeof this._outputNamePrefix == "function" ? this._outputNamePrefix() : this._outputNamePrefix)+"-"+segmentSN;
+			var segmentBaseName = (typeof this._outputNamePrefix === "function" ? this._outputNamePrefix() : this._outputNamePrefix)+"-"+segmentSN;
 			var extension = this._getExtension(segmentUrl);
 			var segmentFileLocation = path.join(this._tempDir, segmentBaseName+"."+extension);
 			return utils.writeFile(segmentFileLocation, buffer).then(() => {
