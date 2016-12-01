@@ -30,7 +30,7 @@ If run standalone the program will terminate with exit code 0 once all thumbnail
 These are the options:
 - **url**: The URL of the stream. If specified 'port' or 'secret' must not be provided.
 - **manifestFileName**:  The name of the manifest file. Only valid with 'url' option and defaults to 'thumbnails.json'.
-- **outputNamePrefix**: The string to be prefixed to the thumbnail file names. Only valid with 'url' option and defaults to a hash of the stream URL.
+- **outputNamePrefix**: The string to be prefixed to the thumbnail file names. Only valid with 'url' option and defaults to a hash of the stream URL.  A function that returns a string can also be provided for dynamic prefixes.
 - **port**: The port to listen on. Defaults to 8080, unless running standalone.
 - **pingInterval**: If a ping request isn't made every 'pingInterval' seconds then thumbnail generation will stop. Defaults to disabled.
 - **clearOutputDir**: If provided the output directory will be emptied when the program starts.
