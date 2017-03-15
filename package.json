@@ -29,7 +29,7 @@
   "dependencies": {
     "body-parser": "^1.15.2",
     "command-line-args": "^3.0.0",
-    "event-emitter": "^0.3.4",
+    "event-emitter": "^0.3.5",
     "express": "^4.14.0",
     "fluent-ffmpeg": "^2.1.0",
     "js-logger": "^1.3.0",
