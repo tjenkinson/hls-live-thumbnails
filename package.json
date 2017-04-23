@@ -31,7 +31,7 @@
     "command-line-args": "^3.0.0",
     "event-emitter": "^0.3.4",
     "express": "^4.14.0",
-    "fluent-ffmpeg": "^2.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "js-logger": "^1.3.0",
     "m3u8": "github:tjenkinson/node-m3u8#hls-live-thumbnails",
     "request": "^2.73.0"
