@@ -38,6 +38,6 @@
   },
   "devDependencies": {
     "jsdoc": "^3.4.0",
-    "jshint": "^2.9.2"
+    "jshint": "^2.9.5"
   }
 }
