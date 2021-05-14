@@ -11,7 +11,7 @@ Can be either used as a library, run as a service and controlled with http reque
 - `npm install -g hls-live-thumbnails` to install globally.
 
 ### Demo
-Run `hls-live-thumbnails https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8`.
+Run `hls-live-thumbnails https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8`.
 
 ### ThumbnailGenerator
 This will generate thumbnails from a HLS stream and emit a `newThumbnail` event whenever a thumbnail is generated.
