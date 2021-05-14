@@ -92,8 +92,8 @@ var thumbnailGeneratorOptions = {
 	interval: interval,
 	initialThumbnailCount: initialThumbnailCount,
 	targetThumbnailCount: targetThumbnailCount,
-	width: width,
-	height: height
+	thumbnailWidth: width,
+	thumbnailHeight: height
 };
 
 Promise.resolve().then(() => {
