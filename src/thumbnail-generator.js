@@ -97,11 +97,11 @@ function ThumbnailGenerator(options) {
  * Get the event emitter.
  * The first argument to the listener is the event type.
  * Events:
- * - playlistChanged when the playlist changes. The second argument is the playlist.
- * - playlistEnded when the playlist has ended and all thumbnails have been generated.
- * - playlistRemoved when the playlist is no longer accessible.
- * - newThumbnail when there is a new thumbnail. The second argument is the thumbnail.
- * - error if an exception is thrown before the generator has initialized.
+ * - `playlistChanged` when the playlist changes. The second argument is the playlist.
+ * - `playlistEnded` when the playlist has ended and all thumbnails have been generated.
+ * - `playlistRemoved` when the playlist is no longer accessible.
+ * - `newThumbnail` when there is a new thumbnail. The second argument is the thumbnail.
+ * - `error` if an exception is thrown before the generator has initialized.
  * @return {Object} An event emitter.
  */
 ThumbnailGenerator.prototype.getEmitter = function() {
