@@ -48,6 +48,8 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 	this._segments = [];
 	this._playlistRemoved = false;
 	this._playlistEnded = false;
+	this._updating = false;
+	this._updateQueued = false;
 	this._generator = new ThumbnailGenerator(Object.assign({}, generatorOptions, {
 		// if the user doesn't provide a temp directory get a general one
 		tempDir: generatorOptions.tempDir || utils.getTempDir()
@@ -62,12 +64,14 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
  * Get the event emitter.
  * The first argument to the listener is the event type.
  * Events:
- * - thumbnailsChanged after a thumbnail is added or removed.
- * - newThumbnail when there is a new thumbnail. The second argument is the thumbnail.
- * - thumbnailRemoved when a thumbnail is removed. The second argument is the thumbnail.
- * - playlistEnded when the playlist has ended and all thumbnails have been generated.
- * - finished when the stream has been removed and all thumbnails have expired.
- * - error if an exception is thrown before the generator has initialized.
+ * - `thumbnailsChanged` after a thumbnail is added or removed.
+ * - `newThumbnail` when there is a new thumbnail. The second argument is the thumbnail.
+ * - `thumbnailRemoved` when a thumbnail is removed. The second argument is the thumbnail.
+ * - `playlistEnded` when the playlist has ended and all thumbnails have been generated.
+ * - `manifestUpdated` event whenever the manifest is updated.
+ * 	 There will be one of these after each of the above events, once the file is written.
+ * - `finished` when the stream has been removed and all thumbnails have expired.
+ * - `error` if an exception is thrown before the generator has initialized.
  * @return {Object} An event emitter.
  */
 SimpleThumbnailGenerator.prototype.getEmitter = function() {
@@ -267,6 +271,11 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 };
 
 SimpleThumbnailGenerator.prototype._updateManifest = function() {
+	if (this._updating) {
+		this._updateQueued = true;
+		return;
+	}
+	this._updating = true;
 	var segments = this.getThumbnails();
 	var ended = this._playlistEnded;
 	var manifest = JSON.stringify({
@@ -285,6 +294,14 @@ SimpleThumbnailGenerator.prototype._updateManifest = function() {
 	}).catch((err) => {
 		if (!this._destroyed) {
 			this._logger.error("Error writing manifest file.", err);
+		}
+	}).then(() => {
+		this._updating = false;
+		if (!this._destroyed && this._updateQueued) {
+			this._updateQueued = false;
+			this._updateManifest();
+		} else if (!this._destroyed) {
+			this._emit('manifestUpdated');
 		}
 	});
 };
