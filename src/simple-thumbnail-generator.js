@@ -299,9 +299,11 @@ SimpleThumbnailGenerator.prototype._updateManifest = function() {
 		this._updating = false;
 		if (!this._destroyed && this._updateQueued) {
 			this._updateQueued = false;
+			this._logger.debug("Processing queued update.");
 			this._updateManifest();
 		} else if (!this._destroyed) {
 			this._emit('manifestUpdated');
+			this._logger.debug("Manifest updated.");
 		}
 	});
 };
