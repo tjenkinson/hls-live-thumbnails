@@ -524,6 +524,7 @@ ThumbnailGenerator.prototype._BadStatusCodeException = function(statusCode) {
 util.inherits(ThumbnailGenerator.prototype._BadStatusCodeException, Error);
 
 ThumbnailGenerator.prototype._getExtension = function(name) {
+	name = name.replace(/\?.*$/, '')
 	var i = name.lastIndexOf(".");
 	if (i === -1) {
 		return "";
