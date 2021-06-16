@@ -12,6 +12,7 @@ var config = require("./config");
 var utils = require("./utils");
 
 var ffmpegTimeout = config.ffmpegTimeout;
+const extensionRegex = /\.([^.?#;]+)[^.]*$/;
 
 /**
  * Generates thumbnails from a HLS stream and emits them as they are taken.
@@ -524,11 +525,8 @@ ThumbnailGenerator.prototype._BadStatusCodeException = function(statusCode) {
 util.inherits(ThumbnailGenerator.prototype._BadStatusCodeException, Error);
 
 ThumbnailGenerator.prototype._getExtension = function(name) {
-	var i = name.lastIndexOf(".");
-	if (i === -1) {
-		return "";
-	}
-	return name.substring(i+1);
+	const res = extensionRegex.exec(name);
+	return res ? res[1] : '';
 };
 
 ThumbnailGenerator.prototype._wait = function(time) {
