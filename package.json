@@ -28,7 +28,7 @@
   "homepage": "https://github.com/tjenkinson/hls-live-thumbnails",
   "dependencies": {
     "body-parser": "^1.19.0",
-    "command-line-args": "^5.1.1",
+    "command-line-args": "^5.1.2",
     "event-emitter": "^0.3.5",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
