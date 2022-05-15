@@ -44,7 +44,7 @@ These are the options:
 - **width**: The default width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
 - **height**: The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
 - **ignorePlaylist404**: Do not abort immediately if the playlist response is a 404. Defaults to false.
-- **playlistRetryCount**: The number of times to retry downloding the playlist on an error. Defaults to 2. Can be Infinity for unlimited retries.
+- **playlistRetryCount**: The number of times to retry downloding the playlist on an error. Defaults to 2. Can be -1 for unlimited retries.
 
 E.g. Service: `hls-live-thumbnails --secret "super-secret" --targetThumbnailCount 20 --width 300`
 E.g. Standalone: `hls-live-thumbnails https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8  --width 300`
