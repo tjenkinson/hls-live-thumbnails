@@ -28,6 +28,8 @@ const extensionRegex = /\.([^.?#;]+)[^.]*$/;
  * @param {Number} [options.thumbnailWidth] The width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
  * @param {Number} [options.thumbnailHeight] The height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
  * @param {String|Function} [options.outputNamePrefix] This will be prepended to the thumbnail names. If omitted this will be generated automatically.
+ * @param {Boolean} [options.ignorePlaylist404] Do not abort immediately if the playlist response is a 404. Defaults to false.
+ * @param {Number} [options.playlistRetryCount] The number of times to retry downloding the playlist on an error. Defaults to 2. Can be Infinity for unlimited retries.
  * @param {Object} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  */
 function ThumbnailGenerator(options) {
@@ -41,6 +43,8 @@ function ThumbnailGenerator(options) {
 		thumbnailWidth: !options.thumbnailHeight ? 150 : null,
 		thumbnailHeight: null,
 		outputNamePrefix: null,
+		ignorePlaylist404: false,
+		playlistRetryCount: 2,
 		logger: Logger.get('ThumbnailGenerator')
 	}, options || {});
 	if (!opts.playlistUrl) {
@@ -64,6 +68,8 @@ function ThumbnailGenerator(options) {
 	this._outputDir = opts.outputDir;
 	this._tempDir = opts.tempDir;
 	this._outputNamePrefix = opts.outputNamePrefix;
+	this._ignorePlaylist404 = opts.ignorePlaylist404;
+	this._playlistRetryCount = opts.playlistRetryCount;
 	this._logger = opts.logger || nullLogger;
 
 	this._resolvedPlaylistUrl = null;
@@ -461,12 +467,12 @@ ThumbnailGenerator.prototype._getPlaylist = function() {
 
 			this._logger.error("Error trying to get playlist.", err.stack);
 
-			if (err instanceof this._BadStatusCodeException && err.extra === 404) {
+			if (!this._ignorePlaylist404 && err instanceof this._BadStatusCodeException && err.extra === 404) {
 				// got a 404
 				return Promise.resolve(null);
 			}
 
-			if (numAttempts < 3) {
+			if (this._playlistRetryCount === Infinity || numAttempts <= this._playlistRetryCount) {
 				return this._wait(5000).then(() => {
 					return attempt.bind(this)();
 				});
