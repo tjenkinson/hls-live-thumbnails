@@ -11,7 +11,7 @@ var optionDefinitions = [
 	// If provided download the thumbnails for this stream and then quit
 	{ name: 'url', alias: 'u', type: String, defaultOption: true },
 	// If url provided use this file name for the manifest file.
-	{ name: 'manifestFileName', alias: 'm', type: String},
+	{ name: 'manifestFileName', alias: 'm', type: String },
 	// If url provided use this as a prefix for the thumbnail file names.
 	{ name: 'outputNamePrefix', type: String, defaultValue: null },
 	
@@ -35,7 +35,11 @@ var optionDefinitions = [
 	// The default width of the thumbnails to generate (px). If omitted this will be calculated automatically from the height, or default to 150.
 	{ name: 'width', alias: 'w', type: Number },
 	// The default height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
-	{ name: 'height', alias: 'h', type: Number }
+	{ name: 'height', alias: 'h', type: Number },
+	// Do not abort immediately if the playlist response is a 404. Defaults to false.
+	{ name: 'ignorePlaylist404', type: Boolean, defaultValue: false },
+	// The number of times to retry downloding the playlist on an error. Defaults to 2. Can be -1 for unlimited retries.
+	{ name: 'playlistRetryCount', type: Number, defaultValue: 2 },
 ];
 
 var options = commandLineArgs(optionDefinitions);
@@ -80,6 +84,8 @@ var initialThumbnailCount = options.initialThumbnailCount || null;
 var targetThumbnailCount = !interval ? options.targetThumbnailCount || 30 : null;
 var height = options.height || null;
 var width = options.width || (options.height ? null : 150);
+var ignorePlaylist404 = options.ignorePlaylist404;
+var playlistRetryCount = options.playlistRetryCount;
 
 var simpleThumbnailGeneratorOptions = {
 	expireTime: expireTime,
@@ -93,7 +99,9 @@ var thumbnailGeneratorOptions = {
 	initialThumbnailCount: initialThumbnailCount,
 	targetThumbnailCount: targetThumbnailCount,
 	thumbnailWidth: width,
-	thumbnailHeight: height
+	thumbnailHeight: height,
+	ignorePlaylist404: ignorePlaylist404,
+	playlistRetryCount: playlistRetryCount
 };
 
 Promise.resolve().then(() => {

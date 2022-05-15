@@ -29,7 +29,7 @@ const extensionRegex = /\.([^.?#;]+)[^.]*$/;
  * @param {Number} [options.thumbnailHeight] The height of the thumbnails to generate (px). If omitted this will be calculated automatically from the width.
  * @param {String|Function} [options.outputNamePrefix] This will be prepended to the thumbnail names. If omitted this will be generated automatically.
  * @param {Boolean} [options.ignorePlaylist404] Do not abort immediately if the playlist response is a 404. Defaults to false.
- * @param {Number} [options.playlistRetryCount] The number of times to retry downloding the playlist on an error. Defaults to 2. Can be Infinity for unlimited retries.
+ * @param {Number} [options.playlistRetryCount] The number of times to retry downloding the playlist on an error. Defaults to 2. Can be -1 for unlimited retries.
  * @param {Object} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  */
 function ThumbnailGenerator(options) {
@@ -472,7 +472,7 @@ ThumbnailGenerator.prototype._getPlaylist = function() {
 				return Promise.resolve(null);
 			}
 
-			if (this._playlistRetryCount === Infinity || numAttempts <= this._playlistRetryCount) {
+			if (this._playlistRetryCount === -1 || this._playlistRetryCount === Infinity || numAttempts <= this._playlistRetryCount) {
 				return this._wait(5000).then(() => {
 					return attempt.bind(this)();
 				});
