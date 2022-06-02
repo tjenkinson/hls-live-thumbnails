@@ -21,6 +21,7 @@ This uses `ThumbnailGenerator` but will also remove thumbnails when their segmen
 You can configure a time to wait before removing thumbnails after their segments are removed using the `expireTime` option.
 This generates a JSON manifest file with information about the generated thumbnails.
 
+If you never want the manifest or thumbnails to be deleted use the `neverDelete` option.
 
 ### Service & Standalone
 You can run this as a service which will expose a http API for control, or standalone.
@@ -38,6 +39,7 @@ These are the options:
 - **tempDir**: A directory to use for temporary files. (Optional)
 - **secret**: A string which must be provided in a "x-secret" header for each request.
 - **expireTime**: The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
+- **neverDelete**: Keep all thumbnails and the manifest around forever. Cannot be used with `expireTime`. Defaults to `false`.
 - **interval**: The default interval between thumbnails. If omitted the interval will be calculated automatically using `targetThumbnailCount`.
 - **initialThumbnailCount**: The default number of thumbnails to generate initially, from the end of the stream. If ommitted defaults to taking thumbnails for the entire stream.
 - **targetThumbnailCount**: The default number of thumbnails that should be generated over the duration of the stream. Defaults to 30. This will be recalculated if the stream duration changes.

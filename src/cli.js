@@ -26,6 +26,8 @@ var optionDefinitions = [
 	{ name: 'secret', alias: 's', type: String },
 	// The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
 	{ name: 'expireTime', alias: 'e', type: Number },
+	// Keep all thumbnails and the manifest around forever. Cannot be used with `expireTime`.
+	{ name: 'neverDelete', type: Boolean, defaultValue: false },
 	// The default interval between thumbnails. If omitted the interval will be calculated automatically using `targetThumbnailCount`.
 	{ name: 'interval', alias: 'i', type: Number },
 	// The default number of thumbnails to generate initially, from the end of the stream. If ommitted defaults to taking thumbnails for the entire stream.
@@ -68,6 +70,10 @@ if (port !== null && options.port % 1 !== 0) {
 	throw new Error("Port invalid.");
 }
 
+if (options.neverDelete && options.expireTime !== undefined) {
+	throw new Error("'expireTime' cannot be used with the 'neverDelete' option.");
+}
+
 var logger = Logger.get("SimpleThumbnailGeneratorCLI");
 var url = options.url;
 var manifestFileName = url ? options.manifestFileName || "thumbnails.json" : null;
@@ -78,7 +84,8 @@ var clearOutputDir = options.clearOutputDir;
 var outputDir = path.resolve(options.outputDir);
 var tempDir = options.tempDir ? path.resolve(options.tempDir) : null;
 var secret = options.secret || null;
-var expireTime = options.expireTime || 0;
+var expireTime = options.expireTime;
+var neverDelete = options.neverDelete;
 var interval = options.interval || null;
 var initialThumbnailCount = options.initialThumbnailCount || null;
 var targetThumbnailCount = !interval ? options.targetThumbnailCount || 30 : null;
@@ -89,6 +96,7 @@ var playlistRetryCount = options.playlistRetryCount;
 
 var simpleThumbnailGeneratorOptions = {
 	expireTime: expireTime,
+	neverDelete: neverDelete,
 	manifestFileName: manifestFileName
 };
 var thumbnailGeneratorOptions = {

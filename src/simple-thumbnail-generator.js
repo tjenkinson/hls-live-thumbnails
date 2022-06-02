@@ -12,6 +12,7 @@ var nullLogger = require("./null-logger");
  * @param {Object} options
  * @param {String} options.manifestFileName The name for the manifest file.
  * @param {Number} [options.expireTime] The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
+ * @param {Number} [options.neverDelete] Keep all thumbnails and the manifest around forever. Cannot be used with `expireTime`. Defaults to `false`.
  * @param {Number} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  * @param {Object} [generatorOptions] Configuraton for `ThumbnailGenerator`.
  */
@@ -21,6 +22,10 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 
 	if (!options.manifestFileName) {
 		throw new Error("manifestFileName required.");
+	}
+
+	if (options.expireTime !== undefined && options.neverDelete) {
+		throw new Error('expireTime cannot be used with neverDelete.');
 	}
 
 	if (typeof(options.logger) === "undefined") {
@@ -36,7 +41,8 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
 	}
 	this._generatorOptions = generatorOptions;
 	this._manifestFileName = options.manifestFileName;
-	this._expireTime = options.expireTime || 0;
+	this._neverDelete = options.neverDelete;
+	this._expireTime = options.neverDelete ? Infinity : options.expireTime || 0;
 	this._segmentRemovalTimes = {
 		// the sn of the first fragment in the array
 		offset: null,
@@ -70,7 +76,8 @@ function SimpleThumbnailGenerator(options, generatorOptions) {
  * - `playlistEnded` when the playlist has ended and all thumbnails have been generated.
  * - `manifestUpdated` event whenever the manifest is updated.
  * 	 There will be one of these after each of the above events, once the file is written.
- * - `finished` when the stream has been removed and all thumbnails have expired.
+ * - `finished` when the stream has been removed and all thumbnails have expired. If neverDelete option used
+ *    then this will fire once the stream has been removed.
  * - `error` if an exception is thrown before the generator has initialized.
  * @return {Object} An event emitter.
  */
@@ -161,7 +168,7 @@ SimpleThumbnailGenerator.prototype._registerGeneratorListeners = function() {
 	this._generator.getEmitter().on("error", (err) => {
 		this._logger.error("Error from ThumbnailGenerator.", err);
 		this._emit("error", err);
-		this.destroy();
+		this.destroy(this._neverDelete);
 	});
 
 	this._generator.getEmitter().on("playlistChanged", (playlist) => {
@@ -228,45 +235,46 @@ SimpleThumbnailGenerator.prototype._markSegmentsAsRemoved = function(lastRemoved
 };
 
 SimpleThumbnailGenerator.prototype._gc = function() {
-	var expireTime = Date.now() + (this._expireTime*1000);
+	if (!this._neverDelete && this._expireTime < Infinity) {
+		var expireTime = Date.now() + (this._expireTime*1000);
 
-	var highestExpiredSegmentSn = null;
-	var offset = this._segmentRemovalTimes.offset;
-	this._segmentRemovalTimes.times = this._segmentRemovalTimes.times.filter((time, i) => {
-		if (time <= expireTime) {
-			highestExpiredSegmentSn = offset + i;
-			return false;
-		}
-		return true;
-	});
+		var highestExpiredSegmentSn = null;
+		var offset = this._segmentRemovalTimes.offset;
+		this._segmentRemovalTimes.times = this._segmentRemovalTimes.times.filter((time, i) => {
+			if (time <= expireTime) {
+				highestExpiredSegmentSn = offset + i;
+				return false;
+			}
+			return true;
+		});
 
-	if (highestExpiredSegmentSn === null) {
-		return;
-	}
-	this._segmentRemovalTimes.offset = highestExpiredSegmentSn+1;
+		if (highestExpiredSegmentSn !== null) {
+			this._segmentRemovalTimes.offset = highestExpiredSegmentSn+1;
 
-	this._segments = this._segments.filter((segment) => {
-		if (segment.sn <= highestExpiredSegmentSn) {
-			this._logger.debug("Segment expired.", segment.sn);
-			segment.thumbnails.forEach((thumbnail) => {
-				var file = path.join(this._generatorOptions.outputDir, thumbnail.name);
-				return utils.verifiedUnlink(file).then(() => {
-					this._logger.debug("Thumbnail deleted.", file);
-					this._updateManifest();
-					this._emit("thumbnailRemoved". thumbnail);
-					this._emit("thumbnailsChanged");
-				}).catch((err) => {
-					this._logger.error("Error trying to delete thumbnail.", file, err.stack);
-				});
+			this._segments = this._segments.filter((segment) => {
+				if (segment.sn <= highestExpiredSegmentSn) {
+					this._logger.debug("Segment expired.", segment.sn);
+					segment.thumbnails.forEach((thumbnail) => {
+						var file = path.join(this._generatorOptions.outputDir, thumbnail.name);
+						return utils.verifiedUnlink(file).then(() => {
+							this._logger.debug("Thumbnail deleted.", file);
+							this._updateManifest();
+							this._emit("thumbnailRemoved". thumbnail);
+							this._emit("thumbnailsChanged");
+						}).catch((err) => {
+							this._logger.error("Error trying to delete thumbnail.", file, err.stack);
+						});
+					});
+					return false;
+				}
+				return true;
 			});
-			return false;
 		}
-		return true;
-	});
+	}
 
-	if (this._playlistRemoved && this._segments.length === 0) {
+	if (this._playlistRemoved && (this._neverDelete || this._segments.length === 0)) {
 		this._emit("finished");
-		this.destroy();
+		this.destroy(this._neverDelete);
 	}
 };
 
