@@ -273,8 +273,8 @@ SimpleThumbnailGenerator.prototype._gc = function() {
 	}
 
 	if (this._playlistRemoved && (this._neverDelete || this._segments.length === 0)) {
-		this._emit("finished");
 		this.destroy(this._neverDelete);
+		this._emit("finished");
 	}
 };
 
