@@ -9,8 +9,8 @@ var nullLogger = require("./null-logger");
  * Starts generating the thumbnails using the configuration in `generatorOptions`.
  * Removes thumbnails when they their segments are removed from the playlist after `expireTime` seconds.
  * @constructor
+ * @param {Object} options
  * @param {String} options.manifestFileName The name for the manifest file.
- * @param {Object} options The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
  * @param {Number} [options.expireTime] The time in seconds to keep thumbnails for before deleting them, once their segments have left the playlist. Defaults to 0.
  * @param {Number} [options.logger] An object with `debug`, `info`, `warn` and `error` functions, or null, to disable logging.
  * @param {Object} [generatorOptions] Configuraton for `ThumbnailGenerator`.
