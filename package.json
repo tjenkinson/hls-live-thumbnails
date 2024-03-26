@@ -30,7 +30,7 @@
     "body-parser": "^1.19.0",
     "command-line-args": "^5.1.1",
     "event-emitter": "^0.3.5",
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "fluent-ffmpeg": "^2.1.2",
     "js-logger": "^1.6.1",
     "m3u8": "tjenkinson/node-m3u8#hls-live-thumbnails",
